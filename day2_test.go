@@ -24,7 +24,7 @@ func TestDay2_Simple(t *testing.T) {
 			t.Errorf("when reading input list, got err: %v", err)
 		}
 
-		res, err := IntCode(vals)
+		res, err := IntCode(vals, nil, nil)
 		if err != nil {
 			t.Errorf("got error when running IntCode(%s): %v", input, err)
 		}
@@ -45,7 +45,7 @@ func TestDay2_Task1(t *testing.T) {
 	vals[1] = 12
 	vals[2] = 2
 
-	res, err := IntCode(vals)
+	res, err := IntCode(vals, nil, nil)
 	if err != nil {
 		t.Error(err)
 		return
@@ -67,7 +67,7 @@ func TestDay2_Task2(t *testing.T) {
 		vals[1] = i % 100
 		vals[2] = i / 100
 
-		res, err := IntCode(vals)
+		res, err := IntCode(vals, nil, nil)
 		if err != nil {
 			continue
 		}
@@ -91,13 +91,13 @@ func TestDay2_Sanity(t *testing.T) {
 
 	vals[1] = 12
 	vals[2] = 02
-	if res, _ := IntCode(vals); res[0] != 2782414 {
+	if res, _ := IntCode(vals, nil, nil); res[0] != 2782414 {
 		t.Error("day 2 task 1 sanity fail")
 	}
 
 	vals[1] = 98
 	vals[2] = 20
-	if res, _ := IntCode(vals); res[0] != 19690720 {
+	if res, _ := IntCode(vals, nil, nil); res[0] != 19690720 {
 		t.Error("day 2 task 2 sanity fail")
 	}
 }
