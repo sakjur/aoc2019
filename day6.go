@@ -31,3 +31,30 @@ func (o orbit) totalOrbits() int {
 	}
 	return sum
 }
+
+func (o orbit) orbitTransfers(alpha, beta string) int {
+	// in same orbit
+	if o[alpha] == o[beta] {
+		return 0
+	}
+
+	parent := o[alpha]
+	alphaAncestors := map[string]int{}
+	for c := 0; parent != ""; c++ {
+		alphaAncestors[parent] = c
+		parent = o[parent]
+	}
+
+	parent = o[beta]
+	c := 0
+	for parent != "" {
+		if v, exists := alphaAncestors[parent]; exists {
+			c += v
+			break
+		}
+		parent = o[parent]
+		c++
+	}
+
+	return c
+}
