@@ -79,7 +79,6 @@ func TestDay5_Tasks(t *testing.T) {
 		default:
 			t.Error("unknown case")
 		}
-		}
 	}
 }
 
