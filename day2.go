@@ -37,18 +37,44 @@ func IntCode(input []int, keyboard chan int, output chan int) ([]int, error) {
 		switch codes[i] % 100 {
 		case 99:
 			return codes, nil
-		case 1:
+		case 1: // ADD
 			codes[codes[i+3]] = val(i, 1, codes) + val(i, 2, codes)
 			i += 4
-		case 2:
+		case 2: // MUL
 			codes[codes[i+3]] = val(i, 1, codes) * val(i, 2, codes)
 			i += 4
-		case 3:
+		case 3: // INPUT
 			codes[codes[i+1]] = <-keyboard
 			i += 2
-		case 4:
+		case 4: // OUTPUT
 			output <- val(i, 1, codes)
 			i += 2
+		case 5: // JUMP IF TRUE
+			if val(i, 1, codes) != 0 {
+				i = val(i, 2, codes)
+			} else {
+				i += 3
+			}
+		case 6: // JUMP IF FALSE
+			if val(i, 1, codes) == 0 {
+				i = val(i, 2, codes)
+			} else {
+				i += 3
+			}
+		case 7: // LT
+			if val(i, 1, codes) < val(i, 2, codes) {
+				codes[codes[i+3]] = 1
+			} else {
+				codes[codes[i+3]] = 0
+			}
+			i += 4
+		case 8: // EQ
+			if val(i, 1, codes) == val(i, 2, codes) {
+				codes[codes[i+3]] = 1
+			} else {
+				codes[codes[i+3]] = 0
+			}
+			i += 4
 		default:
 			return nil, fmt.Errorf("unknown op code '%d'", codes[i])
 		}

@@ -1,7 +1,6 @@
 package aoc2019
 
 import (
-	"fmt"
 	"sync"
 	"testing"
 )
@@ -38,33 +37,112 @@ func TestDay5_Simple(t *testing.T) {
 	}
 }
 
-func TestDay5_Task1(t *testing.T) {
-	i := make(chan int, 1)
-	i <- 1
-	o := make(chan int)
-	output := []int{}
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		for i := range o {
-			output = append(output, i)
+func TestDay5_Tasks(t *testing.T) {
+	for _, num := range []int{1, 5} {
+		i := make(chan int, 1)
+		i <- num
+		o := make(chan int)
+		output := []int{}
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		go func() {
+			for i := range o {
+				output = append(output, i)
+			}
+			wg.Done()
+		}()
+		_, err := IntCode(day5_input, i, o)
+		if err != nil {
+			t.Errorf("got error: %v", err)
 		}
-		wg.Done()
-	}()
-	_, err := IntCode(day5_input, i, o)
-	if err != nil {
-		t.Errorf("got error: %v", err)
-	}
-	close(o)
-	wg.Wait()
+		close(o)
+		wg.Wait()
 
-	for i, val := range output {
-		if i == len(output)-1 {
-			fmt.Println(val)
-			continue
+		for i, val := range output {
+			if i == len(output)-1 {
+				continue
+			}
+			if val != 0 {
+				t.Errorf("expected all outputs except last to be 0, got %d", val)
+			}
 		}
-		if val != 0 {
-			t.Errorf("expected all outputs except last to be 0, got %d", val)
+
+		switch num {
+		case 1:
+			if output[len(output)-1] != 9006673 {
+				t.Errorf("expected output from input 1 = 9006673")
+			}
+		case 5:
+			if output[len(output)-1] != 3629692 {
+				t.Errorf("expected output from input 5 = 3629692")
+			}
+		default:
+			t.Error("unknown case")
+		}
+		}
+	}
+}
+
+func TestDay5_Output(t *testing.T) {
+	type expected struct {
+		program []int
+		in      int
+		out     int
+	}
+
+	longExample := []int{3, 21, 1008, 21, 8, 20, 1005, 20, 22, 107, 8, 21, 20, 1006, 20, 31, 1106, 0, 36, 98, 0, 0, 1002, 21, 125, 20, 4, 20, 1105, 1, 46, 104, 999, 1105, 1, 46, 1101, 1000, 1, 20, 4, 20, 1105, 1, 46, 98, 99}
+
+	tests := []expected{
+		{
+			program: []int{3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8},
+			in:      8,
+			out:     1,
+		},
+		{
+			program: []int{3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8},
+			in:      7,
+			out:     0,
+		},
+		{
+			program: []int{3, 9, 8, 9, 10, 9, 4, 9, 99, -1, 8},
+			in:      9,
+			out:     0,
+		},
+		{
+			program: []int{3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8},
+			in:      7,
+			out:     1,
+		},
+		{
+			program: []int{3, 9, 7, 9, 10, 9, 4, 9, 99, -1, 8},
+			in:      8,
+			out:     0,
+		},
+		{
+			program: longExample,
+			in:      8,
+			out:     1000,
+		},
+		{
+			program: longExample,
+			in:      7,
+			out:     999,
+		},
+		{
+			program: longExample,
+			in:      9,
+			out:     1001,
+		},
+	}
+
+	for _, test := range tests {
+		i := make(chan int, 1)
+		i <- test.in
+		o := make(chan int, 1)
+		_, _ = IntCode(test.program, i, o)
+		val := <-o
+		if val != test.out {
+			t.Errorf("expected IntCode(%v) = %d with input %d, got %d", test.program, test.out, test.in, val)
 		}
 	}
 }
