@@ -12,8 +12,6 @@ type point struct {
 	y int
 }
 
-var empty = struct{}{}
-
 type grid map[point]int
 
 func CollisionDetection(r io.Reader) (int, int) {

@@ -51,7 +51,9 @@ func TestDay2_Task1(t *testing.T) {
 		return
 	}
 
-	t.Log(res[0])
+	if res[0] != 2782414 {
+		t.Errorf("expected 2782414, got %d", res[0])
+	}
 }
 
 func TestDay2_Task2(t *testing.T) {
@@ -71,7 +73,10 @@ func TestDay2_Task2(t *testing.T) {
 		}
 
 		if res[0] == 19690720 {
-			t.Logf("%02d%02d == %d", vals[1], vals[2], res[0])
+			if vals[1] != 98 || vals[2] != 20 {
+				t.Errorf("expected vals[1], vals[2] to be 98, 20 when vals[0] = 19690720. Got %d, %d", vals[1], vals[2])
+			}
+			//t.Logf("%02d%02d == %d", vals[1], vals[2], res[0])
 			return
 		}
 	}

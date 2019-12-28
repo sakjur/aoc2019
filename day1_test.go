@@ -43,7 +43,9 @@ func TestDay1_Task1(t *testing.T) {
 		t.Error(err)
 	}
 
-	t.Log(summarizer(f, Fuel))
+	if n, err := summarizer(f, Fuel); n != 3464458 {
+		t.Errorf("expected %d, got %d (with err: %v)", 3464458, n, err)
+	}
 }
 
 func TestDay1_Task2(t *testing.T) {
@@ -52,7 +54,9 @@ func TestDay1_Task2(t *testing.T) {
 		t.Error(err)
 	}
 
-	t.Log(summarizer(f, FuelForFuel))
+	if n, err := summarizer(f, FuelForFuel); n != 5193796 {
+		t.Errorf("expected %d, got %d (with err: %v)", 5193796, n, err)
+	}
 }
 
 func TestDay1_Sanity(t *testing.T) {
