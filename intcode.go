@@ -30,68 +30,113 @@ func IntCodeString(codes []int) string {
 	return strings.Join(s, ",")
 }
 
+type memory struct {
+	reel []int
+	base int
+}
+
 func IntCode(input []int, keyboard chan int, output chan int) ([]int, error) {
-	codes := make([]int, len(input))
-	copy(codes, input)
-	for i := 0; i < len(codes); {
-		switch codes[i] % 100 {
+	m := memory{
+		base: 0,
+	}
+
+	{
+		codes := make([]int, len(input))
+		copy(codes, input)
+		m.reel = codes
+	}
+	for i := 0; i < len(m.reel); {
+		switch m.reel[i] % 100 {
 		case 99:
-			return codes, nil
+			return m.reel, nil
 		case 1: // ADD
-			codes[codes[i+3]] = val(i, 1, codes) + val(i, 2, codes)
+			m.set(i, 3, m.val(i, 1)+m.val(i, 2))
 			i += 4
 		case 2: // MUL
-			codes[codes[i+3]] = val(i, 1, codes) * val(i, 2, codes)
+			m.set(i, 3, m.val(i, 1)*m.val(i, 2))
 			i += 4
 		case 3: // INPUT
-			codes[codes[i+1]] = <-keyboard
+			m.set(i, 1, <-keyboard)
 			i += 2
 		case 4: // OUTPUT
-			output <- val(i, 1, codes)
+			output <- m.val(i, 1)
 			i += 2
 		case 5: // JUMP IF TRUE
-			if val(i, 1, codes) != 0 {
-				i = val(i, 2, codes)
+			if m.val(i, 1) != 0 {
+				i = m.val(i, 2)
 			} else {
 				i += 3
 			}
 		case 6: // JUMP IF FALSE
-			if val(i, 1, codes) == 0 {
-				i = val(i, 2, codes)
+			if m.val(i, 1) == 0 {
+				i = m.val(i, 2)
 			} else {
 				i += 3
 			}
 		case 7: // LT
-			if val(i, 1, codes) < val(i, 2, codes) {
-				codes[codes[i+3]] = 1
+			if m.val(i, 1) < m.val(i, 2) {
+				m.set(i, 3, 1)
 			} else {
-				codes[codes[i+3]] = 0
+				m.set(i, 3, 0)
 			}
 			i += 4
 		case 8: // EQ
-			if val(i, 1, codes) == val(i, 2, codes) {
-				codes[codes[i+3]] = 1
+			if m.val(i, 1) == m.val(i, 2) {
+				m.set(i, 3, 1)
 			} else {
-				codes[codes[i+3]] = 0
+				m.set(i, 3, 0)
 			}
 			i += 4
+		case 9: // REL BASE
+			m.base += m.val(i, 1)
+			i += 2
 		default:
-			return nil, fmt.Errorf("unknown op code '%d'", codes[i])
+			return nil, fmt.Errorf("unknown op code '%d'", m.reel[i])
 		}
 	}
 	return nil, fmt.Errorf("program incorrectly terminated")
 }
 
-func val(i int, param int, codes []int) int {
-	op := codes[i]
+func (m *memory) set(i, param, val int) {
+	op := m.reel[i]
 	mode := (op / int(math.Pow10(param+1))) % 10
+	addr := -1
 
 	switch mode {
 	case 0:
-		return codes[codes[i+param]]
+		addr = m.reel[i+param]
+	case 2:
+		addr = m.base + m.reel[i+param]
+	}
+
+	m.fit(addr)
+	m.reel[addr] = val
+}
+
+func (m *memory) val(i int, param int) int {
+	op := m.reel[i]
+	mode := (op / int(math.Pow10(param+1))) % 10
+	addr := -1
+
+	switch mode {
+	case 0:
+		addr = m.reel[i+param]
 	case 1:
-		return codes[i+param]
+		addr = i + param
+	case 2:
+		addr = m.base + m.reel[i+param]
 	default:
 		panic(fmt.Errorf("unexpected mode %d", mode))
+	}
+
+	m.fit(addr)
+	return m.reel[addr]
+}
+
+func (m *memory) fit(n int) {
+	if n+1 > len(m.reel) {
+		tmp := m.reel
+		m.reel = make([]int, n+1)
+		copy(m.reel, tmp)
 	}
 }
