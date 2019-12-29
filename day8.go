@@ -3,6 +3,7 @@ package aoc2019
 import (
 	"io"
 	"math"
+	"strings"
 )
 
 // space image format
@@ -60,4 +61,24 @@ func (s *sif) occurrences(layer int, n int) int {
 		}
 	}
 	return c
+}
+
+func (s *sif) decodeString() string {
+	builder := strings.Builder{}
+
+	for pixel := 0; pixel < s.width*s.height; pixel++ {
+		if pixel%s.width == 0 {
+			builder.WriteRune('\n')
+		}
+		for _, layer := range s.layers {
+			if layer[pixel] == 0 {
+				builder.WriteRune('█') // full block
+				break
+			} else if layer[pixel] == 1 {
+				builder.WriteRune(' ') // full block
+				break
+			}
+		}
+	}
+	return builder.String()
 }
