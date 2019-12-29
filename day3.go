@@ -7,11 +7,6 @@ import (
 	"math"
 )
 
-type point struct {
-	x int
-	y int
-}
-
 type grid map[point]int
 
 func CollisionDetection(r io.Reader) (int, int) {
