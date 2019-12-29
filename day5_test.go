@@ -14,13 +14,18 @@ func TestDay5_Simple(t *testing.T) {
 	i <- 1
 	o := make(chan int)
 	res := []int{}
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
 		for i := range o {
 			res = append(res, i)
 		}
+		wg.Done()
 	}()
 	_, _ = IntCode([]int{3, 0, 4, 0, 99}, i, o)
 	close(o)
+	wg.Wait()
 
 	if len(res) != 1 && res[0] != 1 {
 		t.Errorf("expected len(res) = 1 & res[0] = 1, got len(res) = %d & res[0] = %d", len(res), res[0])

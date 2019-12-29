@@ -11,10 +11,14 @@ var day7Program = []int{3, 8, 1001, 8, 10, 8, 105, 1, 0, 0, 21, 34, 51, 76, 101,
 func TestDay7_Task(t *testing.T) {
 	// Task 1
 	perms := permutations([]int{0, 1, 2, 3, 4})
-	t.Log(day7BestConfiguration(perms))
+	if _, v := day7BestConfiguration(perms); v != 422858 {
+		t.Errorf("expected day 7 task 1 result to be 422858, got %d", v)
+	}
 	// Task 2
 	perms = permutations([]int{5, 6, 7, 8, 9})
-	t.Log(day7BestConfiguration(perms))
+	if _, v := day7BestConfiguration(perms); v != 14897241 {
+		t.Errorf("expected day 7 task 2 result to be 14897241, got %d", v)
+	}
 }
 
 func day7BestConfiguration(perms [][]int) (highestPerm []int, highest int) {
