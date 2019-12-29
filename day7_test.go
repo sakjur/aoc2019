@@ -1,7 +1,6 @@
 package aoc2019
 
 import (
-	"sync"
 	"testing"
 )
 
@@ -12,44 +11,13 @@ var day7Program = []int{3, 8, 1001, 8, 10, 8, 105, 1, 0, 0, 21, 34, 51, 76, 101,
 func TestDay7_Task(t *testing.T) {
 	// Task 1
 	perms := permutations([]int{0, 1, 2, 3, 4})
-	t.Log(bestConfiguration(perms))
+	t.Log(day7BestConfiguration(perms))
 	// Task 2
 	perms = permutations([]int{5, 6, 7, 8, 9})
-	t.Log(bestConfigurationFeedback(perms))
+	t.Log(day7BestConfiguration(perms))
 }
 
-func bestConfiguration(perms [][]int) (highestPerm []int, highest int) {
-	for _, perm := range perms {
-		val := 0
-		for _, n := range perm {
-			i := make(chan int, 2)
-			i <- n
-			i <- val
-			o := make(chan int)
-			res := []int{}
-			wg := sync.WaitGroup{}
-			wg.Add(1)
-			go func() {
-				for n := range o {
-					res = append(res, n)
-				}
-				wg.Done()
-			}()
-			_, _ = IntCode(day7Program, i, o)
-			close(o)
-			wg.Wait()
-			val = res[0]
-		}
-		if highestPerm == nil || highest < val {
-			highestPerm = perm
-			highest = val
-		}
-	}
-
-	return
-}
-
-func bestConfigurationFeedback(perms [][]int) (highestPerm []int, highest int) {
+func day7BestConfiguration(perms [][]int) (highestPerm []int, highest int) {
 	for _, perm := range perms {
 		iA := make(chan int)
 		go func() {
