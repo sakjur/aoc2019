@@ -22,6 +22,16 @@ pos=<x= 2, y= 0, z= 4>, vel=<x= 1, y=-1, z=-1>`
 	if s.Energy() != 179 {
 		t.Errorf("expected energy to be 179, got %d", s.Energy())
 	}
+
+	s = &system{
+		{pos: point3d{x: -1, y: 0, z: 2}},
+		{pos: point3d{x: 2, y: -10, z: -7}},
+		{pos: point3d{x: 4, y: -8, z: 8}},
+		{pos: point3d{x: 3, y: 5, z: -1}},
+	}
+	if s.Periodicity() != 2772 {
+		t.Fail()
+	}
 }
 
 func TestDay12_Parse(t *testing.T) {
@@ -46,6 +56,20 @@ pos=<x= 3, y= 5, z=-1>, vel=<x= 0, y= 0, z= 0>`
 }
 
 func TestDay12_Task(t *testing.T) {
+	s := taskSystem()
+	s.Step(1000)
+	if s.Energy() != 8454 {
+		t.Logf("expected energy to be 8454, got %d", s.Energy())
+	}
+
+	// task 2 takes a ton of time.
+	if false {
+		s = taskSystem()
+		t.Log(s.Periodicity()) // 362 336 016 722 948 iterations
+	}
+}
+
+func taskSystem() *system {
 	in := `<x=-10, y=-13, z=7>
 <x=1, y=2, z=1>
 <x=-15, y=-3, z=13>
@@ -56,8 +80,5 @@ func TestDay12_Task(t *testing.T) {
 		tmp := (*s).Add(&body{pos: p})
 		s = &tmp
 	}
-	s.Step(1000)
-	if s.Energy() != 8454 {
-		t.Log("expected energy to be 8454, got %d", s.Energy())
-	}
+	return s
 }

@@ -2,6 +2,7 @@ package aoc2019
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -53,6 +54,91 @@ func (s *system) String() string {
 		bodies[i] = b.String()
 	}
 	return strings.Join(bodies, "\n")
+}
+
+func (s *system) Periodicity() int {
+	origX := make([]int, len(*s))
+	origY := make([]int, len(*s))
+	origZ := make([]int, len(*s))
+	var x, y, z int
+
+	for i, b := range *s {
+		origX[i] = b.pos.x
+		origY[i] = b.pos.y
+		origZ[i] = b.pos.z
+	}
+
+	for i := 0; x == 0 || y == 0 || z == 0; i++ {
+		matches := point3d{}
+
+		for i, b := range *s {
+			if b.vel.x == 0 && x == 0 && origX[i] == b.pos.x {
+				matches.x++
+			}
+
+			if b.vel.y == 0 && y == 0 && origY[i] == b.pos.y {
+				matches.y++
+			}
+
+			if b.vel.z == 0 && z == 0 && origZ[i] == b.pos.z {
+				matches.z++
+			}
+		}
+
+		s.Gravity()
+		s.Movement()
+
+		if len(*s) == matches.x {
+			x = i
+		}
+		if len(*s) == matches.y {
+			y = i
+		}
+		if len(*s) == matches.z {
+			z = i
+		}
+	}
+
+	return lcm([]int{x, y, z})
+}
+
+func lcm(start []int) int {
+	l := make([]int, len(start))
+	copy(l, start)
+
+	for i := 0; ; i++ {
+		minPos, minVal := smallest(l)
+		_, maxVal := largest(l)
+		if maxVal == minVal {
+			return minVal
+		}
+
+		l[minPos] += start[minPos]
+	}
+}
+
+func smallest(l []int) (pos, val int) {
+	val = math.MaxInt64
+	pos = -1
+	for i, n := range l {
+		if n < val {
+			pos = i
+			val = n
+		}
+	}
+	return
+}
+
+func largest(l []int) (pos, val int) {
+	val = math.MinInt64
+	pos = -1
+	for i, n := range l {
+		if n > val {
+			pos = i
+			val = n
+		}
+	}
+	return
 }
 
 func (b *body) Gravity(o *body) {
